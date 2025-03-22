@@ -13,10 +13,18 @@ export class Game {
     this.mode = options.mode; // 'shoot' or 'save'
     this.difficulty = options.difficulty;
     
+    // Score tracking
     this.score = 0;
     this.shotsTaken = 0;
     this.maxShots = 5;
-    this.gameState = 'ready'; // 'ready', 'shooting', 'saving', 'celebrating', 'gameOver'
+    
+    // Level progression
+    this.currentLevel = 1;
+    this.maxLevel = 100;
+    this.levelGoalsRequired = 3; // Number of goals required to advance to next level
+    this.levelGoals = 0; // Goals scored in current level
+    
+    this.gameState = 'ready'; // 'ready', 'shooting', 'saving', 'celebrating', 'levelComplete', 'gameOver'
     
     // Create the Three.js scene
     this.createScene();
@@ -74,8 +82,9 @@ export class Game {
     // Create ball
     this.ball = new Ball(this.scene, assets);
     
-    // Create goalkeeper
-    this.goalkeeper = new Goalkeeper(this.scene, this.difficulty);
+    // Create goalkeeper with difficulty adjusted by level
+    const adjustedDifficulty = Math.min(this.difficulty + (this.currentLevel - 1) * 5, 100);
+    this.goalkeeper = new Goalkeeper(this.scene, adjustedDifficulty);
     
     // Create player based on game mode
     if (this.mode === 'shoot') {
@@ -98,6 +107,7 @@ export class Game {
     
     // Update score display
     this.updateScoreDisplay();
+    this.updateLevelDisplay();
     
     // Update game state
     this.gameState = 'ready';
@@ -171,8 +181,10 @@ export class Game {
       y: Math.random() * 0.8 // 0 to 0.8 vertical height
     };
     
-    // Calculate power based on difficulty (higher difficulty = harder shots)
-    const power = 0.7 + (this.difficulty / 100) * 0.3; // 0.7 to 1.0
+    // Calculate power based on difficulty and level (higher difficulty = harder shots)
+    const basePower = 0.7;
+    const levelAdjustedPower = basePower + (this.currentLevel / 100) * 0.2;
+    const power = levelAdjustedPower + (this.difficulty / 100) * 0.1; // 0.7 to 1.0
     
     // Shoot the ball
     this.ball.kick(randomDirection, power, this.difficulty);
@@ -188,10 +200,16 @@ export class Game {
     // Kick the ball
     this.ball.kick(direction, power, this.difficulty);
     
-    // Goalkeeper tries to save
+    // Goalkeeper tries to save - reaction time decreases with level
+    const reactionTime = Math.max(300 - (this.currentLevel * 2), 100);
     setTimeout(() => {
-      this.goalkeeper.dive(direction);
-    }, 300); // Small delay for goalkeeper reaction time
+      // Make goalkeeper more accurate as levels increase
+      const adjustedDirection = {
+        x: direction.x + (Math.random() * 0.4 - 0.2) * (1 - this.currentLevel/100),
+        y: direction.y + (Math.random() * 0.3 - 0.15) * (1 - this.currentLevel/100)
+      };
+      this.goalkeeper.dive(adjustedDirection);
+    }, reactionTime);
   }
   
   // Check result of the shot
@@ -204,6 +222,7 @@ export class Game {
     if (isGoal && !isSaved) {
       // Goal scored!
       this.score++;
+      this.levelGoals++;
       this.celebrateGoal();
     } else if (!this.ball.isMoving) {
       // Shot missed or saved
@@ -235,20 +254,66 @@ export class Game {
     // Update instructions
     const instructions = document.getElementById('instructions');
     
-    if (this.shotsTaken >= this.maxShots) {
-      // Game over
+    // Check if level is complete
+    if (this.levelGoals >= this.levelGoalsRequired) {
+      // Level complete
+      this.gameState = 'levelComplete';
+      
+      if (this.currentLevel < this.maxLevel) {
+        // Advance to next level
+        instructions.textContent = `Level ${this.currentLevel} Complete! Advancing to Level ${this.currentLevel + 1}`;
+        
+        // Wait a moment, then start next level
+        setTimeout(() => {
+          this.currentLevel++;
+          this.levelGoals = 0;
+          this.updateLevelDisplay();
+          this.resetLevel();
+          
+          instructions.textContent = `Level ${this.currentLevel}: Score ${this.levelGoalsRequired} goals to advance`;
+          setTimeout(() => {
+            this.reset();
+            if (this.mode === 'shoot') {
+              instructions.textContent = 'Use arrow keys to aim, SPACE to shoot.';
+            } else {
+              this.setupAutoShot();
+            }
+          }, 2000);
+        }, 3000);
+      } else {
+        // Game complete - all levels finished
+        this.gameState = 'gameOver';
+        instructions.textContent = `Congratulations! You completed all ${this.maxLevel} levels!`;
+      }
+    } else if (this.shotsTaken >= this.maxShots) {
+      // Out of shots for this level
       this.gameState = 'gameOver';
       
-      const finalScore = `${this.score}/${this.maxShots}`;
-      instructions.textContent = `Game Over! Final Score: ${finalScore}`;
+      const goalsNeeded = this.levelGoalsRequired - this.levelGoals;
+      instructions.textContent = `Level Failed! You needed ${goalsNeeded} more goal(s) to advance. Try again!`;
       
-      // Game over functionality could be expanded here
+      // Add a restart button
+      const restartButton = document.createElement('button');
+      restartButton.textContent = 'Restart Level';
+      restartButton.classList.add('btn-primary');
+      restartButton.style.marginTop = '20px';
+      restartButton.addEventListener('click', () => {
+        this.resetLevel();
+        instructions.textContent = 'Use arrow keys to aim, SPACE to shoot.';
+      });
+      
+      const gameUI = document.getElementById('game-ui');
+      if (gameUI && !document.getElementById('restart-button')) {
+        restartButton.id = 'restart-button';
+        gameUI.appendChild(restartButton);
+      }
     } else {
       // Reset for next shot
       this.reset();
       
       if (this.mode === 'shoot') {
-        instructions.textContent = 'Use arrow keys to aim, SPACE to shoot.';
+        const goalsNeeded = this.levelGoalsRequired - this.levelGoals;
+        instructions.textContent = `Level ${this.currentLevel}: Need ${goalsNeeded} more goal(s). Use arrow keys to aim, SPACE to shoot.`;
       } else {
         // Setup next auto shot for goalkeeper mode
         this.setupAutoShot();
@@ -266,13 +331,67 @@ export class Game {
     }
     
     this.gameState = 'ready';
+    
+    // Remove restart button if it exists
+    const restartButton = document.getElementById('restart-button');
+    if (restartButton) {
+      restartButton.remove();
+    }
+  }
+  
+  // Reset the entire level
+  resetLevel() {
+    // Reset scores for this level
+    this.shotsTaken = 0;
+    this.levelGoals = 0;
+    
+    // Adjust goalkeeper difficulty based on current level
+    const adjustedDifficulty = Math.min(this.difficulty + (this.currentLevel - 1) * 5, 100);
+    this.goalkeeper.setDifficulty(adjustedDifficulty);
+    
+    // Reset everything
+    this.reset();
+    
+    // Update displays
+    this.updateScoreDisplay();
+    this.updateLevelDisplay();
+    
+    // Remove restart button if it exists
+    const restartButton = document.getElementById('restart-button');
+    if (restartButton) {
+      restartButton.remove();
+    }
   }
   
   // Update score display
   updateScoreDisplay() {
     const scoreElement = document.getElementById('score');
     if (scoreElement) {
-      scoreElement.textContent = `${this.score}/${this.shotsTaken} (${this.maxShots - this.shotsTaken} shots left)`;
+      scoreElement.textContent = `${this.score} Total | Level: ${this.levelGoals}/${this.levelGoalsRequired} | Shots: ${this.shotsTaken}/${this.maxShots}`;
+    }
+  }
+  
+  // Update level display
+  updateLevelDisplay() {
+    const instructions = document.getElementById('instructions');
+    if (instructions && this.gameState === 'ready') {
+      const goalsNeeded = this.levelGoalsRequired - this.levelGoals;
+      instructions.textContent = `Level ${this.currentLevel}: Score ${goalsNeeded} more goal(s) to advance`;
+    }
+    
+    // Add level indicator to the UI
+    const gameUI = document.getElementById('game-ui');
+    let levelDisplay = document.getElementById('level-display');
+    
+    if (!levelDisplay && gameUI) {
+      levelDisplay = document.createElement('div');
+      levelDisplay.id = 'level-display';
+      levelDisplay.style.marginTop = '10px';
+      gameUI.appendChild(levelDisplay);
+    }
+    
+    if (levelDisplay) {
+      levelDisplay.textContent = `Level: ${this.currentLevel}/${this.maxLevel}`;
     }
   }
   
@@ -311,6 +430,11 @@ export class Game {
     // Update goalkeeper
     this.goalkeeper.update(deltaTime);
     
+    // Make goalkeeper track the ball when it's moving
+    if (this.ball.isMoving && !this.goalkeeper.isCurrentlyDiving()) {
+      this.goalkeeper.trackBall(this.ball.getPosition());
+    }
+    
     // Check shot result if ball is in motion
     if ((this.gameState === 'shooting' || this.gameState === 'saving') && this.ball.isMoving) {
       this.checkShotResult();
@@ -325,10 +449,13 @@ export class Game {
     // Update instructions based on game mode
     const instructions = document.getElementById('instructions');
     if (this.mode === 'shoot') {
-      instructions.textContent = 'Use arrow keys to aim, SPACE to shoot.';
+      instructions.textContent = `Level ${this.currentLevel}: Score ${this.levelGoalsRequired} goals to advance. Use arrow keys to aim, SPACE to shoot.`;
     } else {
       this.setupAutoShot();
     }
+    
+    // Update level display
+    this.updateLevelDisplay();
   }
   
   // Clean up resources

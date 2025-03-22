@@ -49,6 +49,11 @@ function setupEventListeners() {
   difficultySlider.addEventListener('input', () => {
     difficulty = parseInt(difficultySlider.value);
     difficultyValue.textContent = difficulty;
+    
+    // Update level progression explanation
+    const levelInfoElement = document.getElementById('level-info') || createLevelInfoElement();
+    levelInfoElement.textContent = `Start at Level 1 and advance by scoring 3 goals per level.` + 
+                                  ` Difficulty increases each level. Maximum Level: 100`;
   });
   
   // Game mode selection
@@ -76,6 +81,21 @@ function setupEventListeners() {
     gameScreen.classList.add('hidden');
     menuScreen.classList.remove('hidden');
   });
+}
+
+// Create and add the level info element to the menu
+function createLevelInfoElement() {
+  const difficultySection = document.querySelector('.menu-section:nth-child(3)');
+  const levelInfo = document.createElement('p');
+  levelInfo.id = 'level-info';
+  levelInfo.style.fontSize = '14px';
+  levelInfo.style.color = '#cccccc';
+  levelInfo.style.marginTop = '10px';
+  levelInfo.textContent = `Start at Level 1 and advance by scoring 3 goals per level.` + 
+                         ` Difficulty increases each level. Maximum Level: 100`;
+  
+  difficultySection.appendChild(levelInfo);
+  return levelInfo;
 }
 
 // Start the game with current settings
@@ -106,9 +126,9 @@ function startGame() {
   // Update instructions based on game mode
   const instructions = document.getElementById('instructions');
   if (gameMode === 'shoot') {
-    instructions.textContent = 'Use arrow keys to aim, SPACE to shoot.';
+    instructions.textContent = 'Level 1: Score 3 goals to advance. Use arrow keys to aim, SPACE to shoot.';
   } else {
-    instructions.textContent = 'Use arrow keys to dive when the ball is kicked.';
+    instructions.textContent = 'Level 1: Save 3 shots to advance. Use arrow keys to dive when the ball is kicked.';
   }
 }
 
