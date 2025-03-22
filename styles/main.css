@@ -1,0 +1,249 @@
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #1a1a2e;
+  color: #ffffff;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Common Styles */
+.hidden {
+  display: none !important;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+  padding: 15px 30px;
+  font-size: 18px;
+}
+
+.btn-primary:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Loading Screen */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1a1a2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-content h1 {
+  font-size: 48px;
+  margin-bottom: 30px;
+  color: #4CAF50;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #4CAF50;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Menu Screen */
+#menu-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 900;
+}
+
+.menu-content {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  padding: 30px;
+  width: 80%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.menu-content h1 {
+  font-size: 48px;
+  margin-bottom: 30px;
+  color: #4CAF50;
+}
+
+.menu-section {
+  margin-bottom: 30px;
+}
+
+.menu-section h2 {
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+/* Country Selection */
+#country-selection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.country-option {
+  width: 80px;
+  height: 60px;
+  border: 3px solid transparent;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.country-option:hover {
+  transform: scale(1.1);
+}
+
+.country-option.selected {
+  border-color: #4CAF50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
+}
+
+.country-flag {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Game Mode Selection */
+.game-mode-selection {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.mode-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 12px 24px;
+}
+
+.mode-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.mode-btn.selected {
+  background-color: #4CAF50;
+}
+
+/* Difficulty Slider */
+#difficulty-slider {
+  width: 80%;
+  height: 15px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #4d4d4d;
+  outline: none;
+  border-radius: 10px;
+}
+
+#difficulty-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+#difficulty-slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+/* Game Screen */
+#game-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#game-container {
+  width: 100%;
+  height: 100%;
+}
+
+#game-ui {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  font-size: 18px;
+}
+
+#score-display {
+  margin-bottom: 10px;
+}
+
+#instructions {
+  font-size: 16px;
+  color: #cccccc;
+} 

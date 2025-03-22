@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soccer.io - Penalty Shootout Game</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div id="loading-screen">
+    <div class="loading-content">
+      <h1>Soccer.io</h1>
+      <div class="loader"></div>
+      <p>Loading game assets...</p>
+    </div>
+  </div>
+
+  <div id="menu-screen" class="hidden">
+    <div class="menu-content">
+      <h1>Soccer.io</h1>
+      <div class="menu-section">
+        <h2>Select Your Country</h2>
+        <div id="country-selection"></div>
+      </div>
+      
+      <div class="menu-section">
+        <h2>Game Mode</h2>
+        <div class="game-mode-selection">
+          <button id="mode-shoot" class="mode-btn selected">Shoot Penalties</button>
+          <button id="mode-save" class="mode-btn">Save Penalties</button>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <h2>Difficulty Level: <span id="difficulty-value">1</span></h2>
+        <input type="range" id="difficulty-slider" min="1" max="100" value="1">
+      </div>
+
+      <button id="start-game" class="btn-primary">Start Game</button>
+    </div>
+  </div>
+
+  <div id="game-screen" class="hidden">
+    <div id="game-container"></div>
+    <div id="game-ui">
+      <div id="score-display">Score: <span id="score">0</span></div>
+      <div id="instructions"></div>
+    </div>
+    <button id="back-to-menu" class="btn-secondary">Back to Menu</button>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html> 

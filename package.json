@@ -1,0 +1,28 @@
+{
+  "name": "soccer-io",
+  "version": "1.0.0",
+  "description": "A 3D soccer penalty shootout game using Three.js",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.159.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.8",
+    "serve": "^14.2.1"
+  },
+  "keywords": [
+    "three.js",
+    "soccer",
+    "game",
+    "3d",
+    "webgl"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
